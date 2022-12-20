@@ -1,0 +1,61 @@
+create database pracs;
+use pracs;
+-- partitioning by range, list, hash, key
+
+-- range
+create table sale (cust_id INT, amount INT, cust_name VARCHAR(20))
+partition by range (amount)(
+partition p1 values less than (500),
+partition p2 values less than (1000));
+insert into sale values
+(1, 100, 'atman'),
+(2, 300, 'vidhita'),
+(3, 500, 'kush'),
+(4, 700, 'prateek'),
+(5, 900, 'kc');
+select * from sale;
+select * from information_schema.partitions where table_name='sale';
+select * from sale partition(p2);
+
+-- list 
+create table sale1 (cust_id INT, sale_code INT, cust_name VARCHAR(20))
+partition by list(sale_code)(
+partition p1 values in (6, 8),
+partition p2 values in (2, 4));
+insert into sale1 values
+(1, 6, 'atman'),
+(2, 2, 'vidhita'),
+(3, 4, 'kush'),
+(4, 6, 'prateek'),
+(5, 8, 'kc');
+select * from sale1;
+select partition_name, table_rows from information_schema.partitions where table_name='sale1';
+select * from sale1 partition(p1);
+
+-- hash
+create table student(student_name VARCHAR(20), sapid INT, division VARCHAR(5))
+partition by hash(sapid)
+partitions 3;
+insert into student values
+('atman', '095', 'b'),
+('ayush', '098', 'b'),
+('vidhita', '155', 'b'),
+('pp', '007', 'a'),
+('sarthak', '090', 'a');
+select * from student;
+select partition_name, table_rows from information_schema.partitions where table_name='student';
+select * from student partition(p1);
+
+-- key
+create table student1 (student_name VARCHAR(20), sapid INT PRIMARY KEY, division VARCHAR(5))
+partition by key()
+partitions 2;
+insert into student1 values
+('atman', '095', 'b'),
+('ayush', '098', 'b'),
+('vidhita', '155', 'b'),
+('pp', '007', 'a'),
+('sarthak', '090', 'a');
+select * from student1;
+select partition_name, table_rows from information_schema.partitions where table_name='student1';
+select * from student1 partition(p0);
